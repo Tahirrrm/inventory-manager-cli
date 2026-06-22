@@ -7,9 +7,6 @@ from database import SessionLocal
 from models import Category, Product, StockMovement, Supplier
 
 
-# ===== Category CRUD =====
-
-
 def create_category(name: str):
     with SessionLocal() as session:
         try:
@@ -77,9 +74,6 @@ def delete_category(category_id: int):
             session.rollback()
             print("Ошибка при удалении категории.")
             return False
-
-
-# ===== Supplier CRUD =====
 
 
 def create_supplier(
@@ -176,9 +170,6 @@ def delete_supplier(supplier_id: int):
             session.rollback()
             print("Ошибка при удалении поставщика.")
             return False
-
-
-# ===== Product CRUD =====
 
 
 def create_product(
@@ -352,9 +343,6 @@ def delete_product(product_id: int):
             session.rollback()
             print("Ошибка при удалении товара.")
             return False
-
-
-# ===== StockMovement CRUD =====
 
 
 def create_stock_movement(

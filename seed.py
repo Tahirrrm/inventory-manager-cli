@@ -13,7 +13,7 @@ def seed():
             print("Данные уже существуют. Seed пропущен.")
             return
 
-        # Категории
+     
         electronics = Category(name="Electronics")
         furniture = Category(name="Furniture")
         office_supplies = Category(name="Office Supplies")
@@ -22,7 +22,7 @@ def seed():
         session.add_all([electronics, furniture, office_supplies, tools])
         session.flush()
 
-        # Поставщики
+      
         techtrade = Supplier(
             name="TechTrade",
             phone="+7-123-456-78-90",
@@ -47,7 +47,7 @@ def seed():
         session.add_all([techtrade, officemarket, woodfactory, globaltools])
         session.flush()
 
-        # Товары
+    
         laptop = Product(
             name="Laptop Lenovo ThinkPad",
             sku="LAP001",
@@ -106,7 +106,6 @@ def seed():
         session.add_all([laptop, mouse, chair, paper, screwdriver, monitor])
         session.flush()
 
-        # Складские операции
         movements = [
             StockMovement(
                 product_id=laptop.id,
