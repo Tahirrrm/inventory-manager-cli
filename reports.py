@@ -5,7 +5,7 @@ from models import Category, Product, StockMovement, Supplier
 
 
 def get_products_with_category_and_supplier():
-    """Товары с названиями категорий и поставщиков"""
+
     with SessionLocal() as session:
         stmt = (
             select(
@@ -26,7 +26,7 @@ def get_products_with_category_and_supplier():
 
 
 def get_movements_with_product():
-    """История операций с названием товара"""
+
     with SessionLocal() as session:
         stmt = (
             select(
@@ -46,7 +46,7 @@ def get_movements_with_product():
 
 
 def get_products_count_by_category():
-    """Количество товаров в каждой категории"""
+  
     with SessionLocal() as session:
         stmt = (
             select(
@@ -61,7 +61,7 @@ def get_products_count_by_category():
 
 
 def get_products_count_by_supplier():
-    """Количество товаров у каждого поставщика"""
+
     with SessionLocal() as session:
         stmt = (
             select(
@@ -76,7 +76,7 @@ def get_products_count_by_supplier():
 
 
 def _stock_subquery(session):
-    """Вспомогательная функция: подзапрос остатка для каждого товара"""
+
     in_adjust = case(
         (StockMovement.movement_type.in_(["IN", "ADJUST"]), StockMovement.quantity),
         else_=0,
@@ -112,7 +112,7 @@ def _stock_subquery(session):
 
 
 def get_current_stock_by_product():
-    """Текущий остаток по каждому товару"""
+   
     with SessionLocal() as session:
         subq = _stock_subquery(session)
         stmt = select(
@@ -124,7 +124,7 @@ def get_current_stock_by_product():
 
 
 def get_low_stock_products():
-    """Товары, которые заканчиваются"""
+  
     with SessionLocal() as session:
         subq = _stock_subquery(session)
         stmt = (
@@ -136,7 +136,7 @@ def get_low_stock_products():
 
 
 def get_total_purchase_value():
-    """Общая закупочная стоимость склада"""
+
     with SessionLocal() as session:
         subq = _stock_subquery(session)
         stmt = select(
@@ -148,7 +148,7 @@ def get_total_purchase_value():
 
 
 def get_total_selling_value():
-    """Потенциальная выручка склада"""
+
     with SessionLocal() as session:
         subq = _stock_subquery(session)
         stmt = select(
@@ -160,7 +160,7 @@ def get_total_selling_value():
 
 
 def get_potential_profit():
-    """Потенциальная прибыль склада"""
+   
     with SessionLocal() as session:
         subq = _stock_subquery(session)
         stmt = select(
