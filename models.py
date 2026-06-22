@@ -17,112 +17,109 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 
-class Department(Base):
-    __tablename__ = "departments"
+class Category(Base):
+    __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
 
-    employees: Mapped[list["Employee"]] = relationship(
-        back_populates="department"
-    )
+    products: Mapped[list["Product"]] = relationship(back_populates="category")
 
 
-class Employee(Base):
-    __tablename__ = "employees"
-
-    __table_args__ = (
-        CheckConstraint("salary > 0", name="check_employee_salary_positive"),
-    )
+class Supplier(Base):
+    __tablename__ = "suppliers"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(Text, nullable=False)
-
-    salary: Mapped[Optional[Decimal]] = mapped_column(
-        Numeric(10, 2),
-        nullable=True,
-    )
-
-    department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("departments.id"),
-        nullable=True,
-    )
-
-    hired_at: Mapped[date] = mapped_column(
-        Date,
-        server_default=text("CURRENT_DATE"),
-    )
-
-    department: Mapped[Optional["Department"]] = relationship(
-        back_populates="employees"
-    )
-
-    projects: Mapped[list["Project"]] = relationship(
-        back_populates="employee"
-    )
-
-    profile: Mapped[Optional["EmployeeProfile"]] = relationship(
-        back_populates="employee",
-        uselist=False,
-    )
-
-
-class Project(Base):
-    __tablename__ = "projects"
-
-    __table_args__ = (
-        CheckConstraint("budget >= 0", name="check_project_budget_non_negative"),
-    )
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(Text, nullable=False)
-
-    employee_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("employees.id"),
-        nullable=True,
-    )
-
-    budget: Mapped[Optional[Decimal]] = mapped_column(
-        Numeric(12, 2),
-        nullable=True,
-    )
-
+    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    phone: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    email: Mapped[Optional[str]] = mapped_column(Text, nullable=True, unique=True)
     is_active: Mapped[bool] = mapped_column(
-        Boolean,
-        server_default=text("TRUE"),
+        Boolean, server_default=text("TRUE")
+    )
+    created_at: Mapped[date] = mapped_column(
+        Date, server_default=text("CURRENT_DATE")
     )
 
-    employee: Mapped[Optional["Employee"]] = relationship(
-        back_populates="projects"
-    )
+    products: Mapped[list["Product"]] = relationship(back_populates="supplier")
 
-class EmployeeProfile(Base):
-    __tablename__ = "employee_profiles"
+
+class Product(Base):
+    __tablename__ = "products"
+
+    __table_args__ = (
+        CheckConstraint(
+            "purchase_price >= 0",
+            name="check_purchase_price_non_negative",
+        ),
+        CheckConstraint(
+            "selling_price >= 0",
+            name="check_selling_price_non_negative",
+        ),
+        CheckConstraint(
+            "min_quantity >= 0",
+            name="check_min_quantity_non_negative",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-
-    employee_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("employees.id"),
-        unique=True,
-        nullable=True,
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    sku: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    category_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("categories.id"), nullable=True
+    )
+    supplier_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("suppliers.id"), nullable=True
+    )
+    purchase_price: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(10, 2), nullable=True
+    )
+    selling_price: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(10, 2), nullable=True
+    )
+    min_quantity: Mapped[Optional[int]] = mapped_column(
+        Integer, nullable=True
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, server_default=text("TRUE")
+    )
+    created_at: Mapped[date] = mapped_column(
+        Date, server_default=text("CURRENT_DATE")
     )
 
-    phone: Mapped[Optional[str]] = mapped_column(
-        Text,
-        nullable=True,
-        unique=True
+    category: Mapped[Optional["Category"]] = relationship(
+        back_populates="products"
+    )
+    supplier: Mapped[Optional["Supplier"]] = relationship(
+        back_populates="products"
+    )
+    stock_movements: Mapped[list["StockMovement"]] = relationship(
+        back_populates="product"
     )
 
-    address: Mapped[Optional[str]] = mapped_column(
-        Text,
-        nullable=True,
+
+class StockMovement(Base):
+    __tablename__ = "stock_movements"
+
+    __table_args__ = (
+        CheckConstraint(
+            "quantity > 0",
+            name="check_quantity_positive",
+        ),
+        CheckConstraint(
+            "movement_type IN ('IN', 'OUT', 'ADJUST')",
+            name="check_movement_type",
+        ),
     )
 
-    birth_date: Mapped[Optional[date]] = mapped_column(
-        Date,
-        nullable=True,
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    product_id: Mapped[int] = mapped_column(
+        ForeignKey("products.id"), nullable=False
+    )
+    movement_type: Mapped[str] = mapped_column(Text, nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[date] = mapped_column(
+        Date, server_default=text("CURRENT_DATE")
     )
 
-    employee: Mapped[Optional["Employee"]] = relationship(
-        back_populates="profile"
-    )
+    product: Mapped["Product"] = relationship(back_populates="stock_movements")
